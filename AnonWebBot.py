@@ -12,6 +12,7 @@ import random
 import time
 import re
 import logging
+import ast
 
 # Tor default local proxy
 PROXIES = {
@@ -33,6 +34,8 @@ def parse_args(description):
     query. Default is 15 seconds.", type=int, default=15)
     parser.add_argument("-ws", "--with_session", help="Set it if you need a \
     session", action='store_true')
+    parser.add_argument("-H", "--headers", help="Use a defined header. Default \
+    is to use a random header.", type=str)
     subparsers = parser.add_subparsers(help='using an ip changer', dest='m_ip')
     tor = subparsers.add_parser('tor', help="use tor")
     tor.add_argument("-td", "--t_dynamic", action='store_true', help = \
@@ -131,7 +134,7 @@ def main():
         method="POST"
     else:
         method="GET"
-
+    
     waiting(args.min, args.max)
     
     if args.value:
@@ -148,12 +151,19 @@ def main():
         timeout = 15
     if args.auth_user and args.auth_pwd:
         auth=(args.auth_user, args.auth_pwd)
+    if args.headers:
+        headers = args.headers
+        try:
+            headers = ast.literal_eval(headers)
+        except (SyntaxError, ValueError) as e:
+            raise e
     
     # setup the request
     rq = builder.rq(method, url, auth, payload, session, headers, proxies, \
         timeout)
-    # randomize user_agent
-    rq.rand_uagent()
+    if not headers:
+        # randomize user_agent
+        rq.rand_uagent()
 
     if args.with_session:
         rq.get_session()
