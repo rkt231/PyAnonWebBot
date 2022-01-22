@@ -59,10 +59,14 @@ def parse_args(description):
         "Search elements by class", type=str)
     parser.add_argument("-sc", "--search_content", help= \
         "Text to search in HTML DOM.", type=str)
+    parser.add_argument("-sff", "--stop_first_found", help= \
+        "Stop search at first item found.", action='store_true')
     parser.add_argument("-sl", "--search_limit", help= \
         "Maximum matches to display. Default is 100.", type=int, default=100)
     parser.add_argument("--norecursive", help= \
         "Display only immediate children.", action='store_true')
+    parser.add_argument("-dutf8", "--decode_utf8", help= \
+        "Try to decode utf8 content.", action='store_true')
     parser.add_argument("-v", "--value", help="value to send (dict format)", \
         type=str)
     parser.add_argument("--auth_user", help="Basic auth (user)", \
@@ -187,13 +191,29 @@ def main():
         recursive=False
     if args.search_limit:
         limit = args.search_limit
-    results = bs4_parser.bs4_find_all(content, tag, attrs, recursive, search_string, limit)
+    
+    # soup.find() and soup.find_all() may be mixed.
+    # maybe that kind of mix will be possible in a future version
+    # to stop at first item, we could either use limit=1 or soup.find()
+    if args.stop_first_found:
+        results = bs4_parser.bs4_find(content, tag, attrs, recursive, search_string)
+    else:
+        results = bs4_parser.bs4_find_all(content, tag, attrs, recursive, search_string, limit)
+    
     if results:
         for s in results:
-            pprint(s)
+            if args.decode_utf8:
+                try:
+                    pprint(s.decode("utf-8"))
+                except:
+                    pprint(s)
     else:
-        logging.warning("No Content Found !\nDumping content.\n")
-        pprint(content)
+        logging.warning("No Content Found ! Dumping content.\n")
+        if args.decode_utf8:
+            try:
+                pprint(content.decode("utf-8"))
+            except:
+                pprint(content)
 
 if __name__ == '__main__':
     main()
