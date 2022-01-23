@@ -10,7 +10,7 @@ Tor can also be used to modify your IP.
 
 ## I will take no responsibility !!! It is for educational purposes only
 
-Moreover, it is a side project. y time is limited and valuable. Do not hesitate to make issue, then fork and ask for PR.
+Moreover, it is a side project. My time is limited and valuable. Do not hesitate to make issue, then fork and ask for PR.
 
 ## Install
 
@@ -78,6 +78,8 @@ sudo service tor start
 # using `-sc "."` to match any content
 for i in {0..3}; do ./AnonWebBot.py -u https://httpbin.org/headers -m 1 -M 3 -sc "."; done
 ```
+
+Otherwise you can set your custom headers with `-H` option.
 
 ## Sending data
 

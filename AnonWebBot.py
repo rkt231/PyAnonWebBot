@@ -205,15 +205,23 @@ def main():
             if args.decode_utf8:
                 try:
                     pprint(s.decode("utf-8"))
-                except:
+                except Exception as e:
+                    logging.warning("Following exception happens while trying to \
+decode content (utf-8): %s. \nDumping results:\n"%e)
                     pprint(s)
+            else:
+                pprint(s)
     else:
         logging.warning("No Content Found ! Dumping content.\n")
         if args.decode_utf8:
             try:
                 pprint(content.decode("utf-8"))
-            except:
+            except Exception as e:
+                logging.warning("Following exception happens while trying to \
+decode content (utf-8): %s. \nDumping results:\n"%e)
                 pprint(content)
+        else:
+            pprint(content)
 
 if __name__ == '__main__':
     main()
