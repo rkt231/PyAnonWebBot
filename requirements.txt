@@ -8,7 +8,9 @@ requests==2.26.0
 #requests-ftp==0.3.1
 requests-html==0.10.0
 requestsexceptions==1.4.0
+selenium==4.1.0
 stem==1.8.0
 urllib3==1.26.6
+webdriver_manager=3.5.2
 #websocket-client==1.2.3
 #websockets==10.1

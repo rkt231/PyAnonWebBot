@@ -69,10 +69,12 @@ def parse_args(description):
         "Try to decode utf8 content.", action='store_true')
     parser.add_argument("-v", "--value", help="value to send (dict format)", \
         type=str)
-    parser.add_argument("--auth_user", help="Basic auth (user)", \
+    parser.add_argument("--auth_user", help="authenticate with username", \
         type=str)
-    parser.add_argument("--auth_pwd", help="Basic auth (password)", \
+    parser.add_argument("--auth_pwd", help="authenticate with password", \
         type=str)
+    parser.add_argument("--authtype", help="Authentication type: \
+        [digest|basic]", type=str, choices=['basic','digest'])
     parser.add_argument("-mt", "--method", help="Method to use in form. \
         Should be GET or POST. Default is GET.", default="GET", type=str)
     args = parser.parse_args()
@@ -179,6 +181,13 @@ def main():
     if not headers:
         # randomize user_agent
         rq.rand_uagent()
+    
+    if auth:
+        if args.authtype:
+            authtype = args.authtype
+        else:
+            authtype = 'basic'
+        rq.authenticate(authtype)
 
     if args.with_session:
         rq.get_session()

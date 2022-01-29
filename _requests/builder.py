@@ -1,3 +1,4 @@
+import logging
 import requests
 from requests_html import HTMLSession
 from random_user_agent.user_agent import UserAgent
@@ -17,6 +18,7 @@ class rq:
     timeout = 15
     Rq_obj = ""
     output = ""
+    authtype = ""
 
     def __init__(self, method, url, auth, payload, session, headers, proxies, \
         timeout):
@@ -30,6 +32,17 @@ class rq:
         self.timeout = timeout
         self.Rq_obj = ""
         self.output = ""
+        self.authtype = ""
+    
+    def authenticate(self, authtype):
+        self.authtype = authtype
+        # https://www.programcreek.com/python/example/53012/requests.auth.HTTPDigestAuth
+        if authtype == "basic":
+            self.auth = requests.auth.HTTPBasicAuth(self.auth[0], self.auth[1])
+        elif authtype == "digest":
+            self.auth = requests.auth.HTTPDigestAuth(self.auth[0], self.auth[1])
+        else:
+            logging.info("No authentication method given")
 
     def get_session(self):
         try:
