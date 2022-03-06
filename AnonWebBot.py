@@ -30,7 +30,7 @@ def parse_args(description):
         help_format.BlankLinesHelpFormatter, description=description)
 
     parser.add_argument('--version', action='version', \
-    version='%(prog)s 0.1')
+    version='%(prog)s 0.1.1')
     
     parser.add_argument("-m", "--min", help="minimum time (seconds) to wait \
     between two queries. Default is 1 second.", type=int, default=1)
@@ -87,24 +87,24 @@ def parse_args(description):
     parser.add_argument("-tp", "--tor_password", type=str, help = \
         "Password for the Tor controller (dynamic; needs '-td')")
     
-    subparsers = parser.add_subparsers(help='use a selenium engine instead \
-        of python requests library', dest='selenium')
-    selenium = subparsers.add_parser('selenium', help="use selenium")
-    selenium.add_argument("-be", "--browser_engine", type=str, choices = \
+    parser.add_argument("-SBE", "--selenium_browser_engine", type=str, choices = \
         ["chrome", "chromium", "firefox", "edge", "opera", "IE"], \
         help="Use the corresponding browser engine (it needs to be installed)")
-    selenium.add_argument("-A", "--actions", type=str, help = "A valid list \
-        of selenium actions (eg: '[[{'type': 'find_element_by_name'}, \
-        'value': 'q'}, {'type': 'send_keys', 'value': 'test'}]]' will result \
-        in .find_element_by_name('q').send_keys('test'))")
+    parser.add_argument("-SA", "--selenium_actions", type=str, help = "A valid list \
+        of selenium actions (eg: '[[{\"type\": \"find_element_by_name\", \
+        \"value\": \"q\"}, {\"type\": \"send_keys\", \"value\": \"test\"}]]' \
+        will result in .find_element_by_name('q').send_keys('test'))")
+    parser.add_argument("-SAF", "--selenium_actions_file", type = \
+        argparse.FileType('r'), help = "A valid list of selenium actions in a \
+        json file (you could take a look at test_ddg.json)")
 
     args = parser.parse_args()
     return args
 
-def new_req(method, url, auth, payload, session, headers, proxies, timeout, \
+def requests_new(method, url, auth, payload, session, headers, proxies, timeout, \
     authtype, with_session):
     # setup the request
-    rq = selenium_builder.rq(method, url, auth, payload, session, headers, proxies, \
+    rq = builder.rq(method, url, auth, payload, session, headers, proxies, \
         timeout)
     if not headers:
         # randomize user_agent
@@ -241,12 +241,18 @@ def main():
         except (SyntaxError, ValueError) as e:
             raise e
     
-    if args.selenium:
-        if args.browser_engine:
-            rq = selenium_builder.Selenium_rq(args.browser_engine, url, proxies)
-            rq.selenium_actions(args.actions)
+    if args.selenium_browser_engine:
+        rq = selenium_builder.Selenium_rq(args.selenium_browser_engine, \
+            url, proxies, headers)
+        rq.open_url(url)
+        if args.selenium_actions:
+            rq.selenium_actions(args.selenium_actions)
+        elif args.selenium_actions_file:
+            rq.selenium_actions(args.selenium_actions_file)
+        else:
+            pprint("No action given for Selenium")
     else:
-        content = new_req(method, url, auth, payload, session, headers, \
+        content = requests_new(method, url, auth, payload, session, headers, \
             proxies, timeout, args.authtype, args.with_session)
 
     if args.search_element_id:
@@ -254,7 +260,7 @@ def main():
     if args.search_element_name:
         attrs["name"] = args.search_element_name
     if args.search_element_class:
-        attrs["class"] = args.search_element_class  
+        attrs["class"] = args.search_element_class
     
     if content:
         parse_and_display(args.search_element_tag, attrs, \
