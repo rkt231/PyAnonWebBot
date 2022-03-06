@@ -244,7 +244,7 @@ def main():
     if args.selenium_browser_engine:
         rq = selenium_builder.Selenium_rq(args.selenium_browser_engine, \
             url, proxies, headers)
-        rq.open_url(url)
+        rq.open_url()
         if args.selenium_actions:
             rq.selenium_actions(args.selenium_actions)
         elif args.selenium_actions_file:

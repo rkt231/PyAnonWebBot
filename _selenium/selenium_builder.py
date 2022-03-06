@@ -1,6 +1,7 @@
 from . import chrome, chromium, firefox, edge, ie, opera
 from selenium.webdriver.common.by import By
 import json
+import time
 
 class Selenium_rq:
 
@@ -28,9 +29,10 @@ class Selenium_rq:
         elif browserEngine == "opera":
             self.driver = opera.init_opera(proxy)
 
-    def open_url(self, url):
+    def open_url(self):
         self.driver.maximize_window()
         self.driver.get(self.url)
+        time.sleep(5)
 
     def selenium_actions(self, actions):
         """

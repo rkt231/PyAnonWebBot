@@ -10,6 +10,7 @@ def init_chrome(proxy=False, headers=False):
     _serv = Service(ChromeDriverManager().install())
     _opts = webdriver.ChromeOptions()
     if proxy:
-        _opts.add_argument('--proxy-server=%s' % proxy)
+        PROXY = "socks5://127.0.0.1:9050"
+        _opts.add_argument('--proxy-server=%s' % PROXY)
     driver = webdriver.Chrome(service=_serv, options=_opts)
     return driver
