@@ -11,6 +11,43 @@
         {
             "type": "send_keys",
             "value": "Keys.ENTER"
+        },
+        {
+            "type": "ExplicitWait",
+            "timeout": "15",
+            "element": 
+                {
+                    "type": "css selector",
+                    "value": "#message",
+                    "~~ comments ~~": "expect one of `css selector`, `link text`, `partial link text`, `tag name`, `xpath`"
+                }
+        },
+        {
+            "type": "refresh"
+        },
+        {
+            "type": "find_element_by_name", 
+            "value": "q"
+        },
+        {
+            "type": "send_keys",
+            "value": "Keys.CONTROL + 'a'"
+        },
+        {
+            "type": "send_keys",
+            "value": "Keys.DELETE"
+        },
+        {
+            "type": "send_keys",
+            "value": "!pypi selenium"
+        },
+        {
+            "type": "send_keys",
+            "value": "Keys.ENTER"
+        },
+        {
+            "type": "wait",
+            "value": "5"
         }
     ]
 ]
