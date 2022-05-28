@@ -92,7 +92,7 @@ def parse_args(description):
         will result in .find_element_by_name('q').send_keys('test'))")
     parser.add_argument("-SAF", "--selenium_actions_file", type = \
         argparse.FileType('r'), help = "A valid list of selenium actions in a \
-        json file (you could take a look at test_ddg.json)")
+        json file (you could take a look at _selenium/examples/*.json)")
 
     args = parser.parse_args()
     return args

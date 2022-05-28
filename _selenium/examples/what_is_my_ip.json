@@ -11,6 +11,10 @@
         {
             "type": "send_keys",
             "value": "Keys.ENTER"
+        },
+        {
+                "type": "wait",
+                "value": "7"
         }
     ]
 ]

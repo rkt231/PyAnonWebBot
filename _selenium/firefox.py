@@ -7,7 +7,7 @@ from selenium.webdriver.common.proxy import Proxy, ProxyType
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from config import conf
-
+from utils import rand_user_agent
 
 def init_firefox(proxy=False, headers=False):
     """
@@ -25,6 +25,7 @@ def init_firefox(proxy=False, headers=False):
         #profile.set_preference("network.proxy.socks_remote_dns", False)
         profile.update_preferences()
     if headers:
+        headers = rand_user_agent.rand_uagent()
         profile.set_preference("general.useragent.override", headers)
         profile.update_preferences()
     driver = webdriver.Firefox(service=_serv, options=_opts, \
