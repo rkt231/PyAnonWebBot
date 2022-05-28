@@ -14,13 +14,9 @@ import re
 import logging
 import ast
 
-from _selenium import selenium_builder
+from config import conf
 
-# Tor default local proxy
-PROXIES = {
-    'http': 'socks5://127.0.0.1:9050',
-    'https': 'socks5://127.0.0.1:9050'
-}
+from _selenium import selenium_builder
 
 def parse_args(description):
     """
@@ -226,7 +222,7 @@ def main():
         if args.tor_dynamic and args.tor_password:
             tor_pwd = args.tor_password
             torify(tor_pwd)
-        proxies=PROXIES
+        proxies=conf.PROXIES
     
     if args.timeout:
         timeout = args.timeout

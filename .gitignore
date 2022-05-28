@@ -131,3 +131,4 @@ dmypy.json
 # additionnal project specific data
 ~/
 *.tar.gz
+TODO.md

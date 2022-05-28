@@ -1,9 +1,12 @@
 from selenium import webdriver
+#from seleniumwire import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
+from config import conf
 
 
 def init_firefox(proxy=False, headers=False):
@@ -15,9 +18,10 @@ def init_firefox(proxy=False, headers=False):
     _opts = webdriver.FirefoxOptions()
     profile = webdriver.FirefoxProfile()
     if proxy:
+        print("Using proxy %s" % conf.PROXIES)
         profile.set_preference("network.proxy.type", 1)
-        profile.set_preference("network.proxy.socks", '127.0.0.1')
-        profile.set_preference("network.proxy.socks_port", 9050)
+        profile.set_preference("network.proxy.socks", conf.TOR_PROX_HOST)
+        profile.set_preference("network.proxy.socks_port", conf.TOR_PORT)        
         #profile.set_preference("network.proxy.socks_remote_dns", False)
         profile.update_preferences()
     if headers:

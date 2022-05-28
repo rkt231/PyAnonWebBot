@@ -3,6 +3,8 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 
+from config import conf
+
 def init_chrome(proxy=False, headers=False):
     """
     Basic selenium chrome handler
@@ -10,7 +12,7 @@ def init_chrome(proxy=False, headers=False):
     _serv = Service(ChromeDriverManager().install())
     _opts = webdriver.ChromeOptions()
     if proxy:
-        PROXY = "socks5://127.0.0.1:9050"
+        PROXY = conf.PROXIES['https']
         _opts.add_argument('--proxy-server=%s' % PROXY)
     driver = webdriver.Chrome(service=_serv, options=_opts)
     return driver
