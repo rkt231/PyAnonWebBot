@@ -69,6 +69,7 @@ sudo service tor start
 ./AnonWebBot.py --url https://ident.me -ws -ts
 
 # adding a dynamic IP from tor and random sleep before request (between 3 and 5 seconds)
+# replace "mypassword" with your tor password
 ./AnonWebBot.py --url https://ident.me -ws -sc "." -m 3 -M 5 -td -tp mypassword
 ```
 
@@ -76,7 +77,7 @@ sudo service tor start
 
 ```bash
 # using `-sc "."` to match any content
-for i in {0..3}; do ./AnonWebBot.py -u https://httpbin.org/headers -m 1 -M 3 -sc "."; done
+for i in {0..3}; do ./AnonWebBot.py -u https://httpbin.org/headers -m 1 -M 3 -sc "."|grep User-Agent; done
 ```
 
 Otherwise you can set your custom headers with `-H` option.
@@ -90,7 +91,7 @@ Otherwise you can set your custom headers with `-H` option.
 # to check where the action send data, the input values to send, etc. 
 ./AnonWebBot.py -u https://httpbin.org/forms/post -mt get -se_t form
 # send data using this form
-./AnonWebBot.py -u https://httpbin.org/post -mt post -v '{"custname": "JohnDoe", "custel": "00-00-000", "custemail": "john.doe@domain.tld", "size": "large", "topping": "cheese", "delivery":"19:45"}' -sc "." tor -td -tp mypassword
+./AnonWebBot.py -u https://httpbin.org/post -mt post -v '{"custname": "JohnDoe", "custel": "00-00-000", "custemail": "john.doe@domain.tld", "size": "large", "topping": "cheese", "delivery":"19:45"}' -sc "." -td -tp mypassword
 ```
 
 ## A more advanced usage with selenium in python
