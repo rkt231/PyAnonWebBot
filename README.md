@@ -95,6 +95,8 @@ Otherwise you can set your custom headers with `-H` option.
 
 ## A more advanced usage with selenium in python
 
+> For now, Selenium version of this tool is not yet able to change IP dynamically using Tor (only the static one given by your Tor service). Moreover, the headers are not yet able to be customized.
+
 ### Basic selenium usage
 
 First of all, you have to use the `-SBE` option (meaning switch to a Selenium Browser Engine...), followed by the browser you need (those browser are valid options: chrome, chromium and firefox).
@@ -104,8 +106,8 @@ Last geckodriver can be found [here](https://github.com/mozilla/geckodriver/rele
 
 There are two way to use the Selenium package :
 
-  - enter arguments for each action directly in CLI,
-  - enter each action in a separate file, which is more readable, particularly if you have many actions.
+- enter arguments for each action directly in CLI,
+- enter each action in a separate file, which is more readable, particularly if you have many actions.
 
 To read a file containing a sequence of action, use `-SAF` (Selenium Action File). Otherwise, you will need the `-SA` argument, followed by your list of actions.
 
