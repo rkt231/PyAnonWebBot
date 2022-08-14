@@ -14,3 +14,4 @@ urllib3==1.26.6
 webdriver_manager=3.5.2
 #websocket-client==1.2.3
 #websockets==10.1
+selenium-wire==4.6.3

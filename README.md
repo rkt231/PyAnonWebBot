@@ -8,9 +8,9 @@ Tor can also be used to modify your IP.
 
 [`Beautifulsoup4`](https://www.crummy.com/software/BeautifulSoup/) is used for parsing web pages (scraping) and the awesome [`requests`](https://github.com/psf/requests) library is used to handle requests with the web servers.
 
-## I will take no responsibility !!! It is for educational purposes only
+> I will take no responsibility !!! It is for educational purposes only
 
-Moreover, it is a side project. My time is limited and valuable. Do not hesitate to make issue, then fork and ask for PR.
+_Moreover, it is a side project. My time is limited and valuable. Do not hesitate to make issue, then fork and ask for PR._
 
 ## Install
 
@@ -36,7 +36,7 @@ sed -ri "s/#HashedControlPassword .+$/HashedControlPassword `cat /tmp/hash`/g" /
 service tor restart
 ```
 
-## Usage
+## Basic usage with the requests python package
 
 ### Basic scraping usage with GET method
 
@@ -66,10 +66,10 @@ sudo service tor start
 ./AnonWebBot.py --url https://ident.me 
 
 # with tor and a session
-./AnonWebBot.py --url https://ident.me -ws tor
+./AnonWebBot.py --url https://ident.me -ws -ts
 
-# adding a dynamic IP and random sleep before request (between 3 and 5 seconds)
-./AnonWebBot.py --url https://ident.me -ws -sc "." -m 3 -M 5 tor -td -tp mypassword
+# adding a dynamic IP from tor and random sleep before request (between 3 and 5 seconds)
+./AnonWebBot.py --url https://ident.me -ws -sc "." -m 3 -M 5 -td -tp mypassword
 ```
 
 ### checking headers
@@ -91,4 +91,38 @@ Otherwise you can set your custom headers with `-H` option.
 ./AnonWebBot.py -u https://httpbin.org/forms/post -mt get -se_t form
 # send data using this form
 ./AnonWebBot.py -u https://httpbin.org/post -mt post -v '{"custname": "JohnDoe", "custel": "00-00-000", "custemail": "john.doe@domain.tld", "size": "large", "topping": "cheese", "delivery":"19:45"}' -sc "." tor -td -tp mypassword
+```
+
+## A more advanced usage with selenium in python
+
+> For now, Selenium version of this tool is not yet able to change IP dynamically using Tor (only the static one given by your Tor service). Moreover, the headers are not yet able to be customized.
+
+### Basic selenium usage
+
+First of all, you have to use the `-SBE` option (meaning switch to a Selenium Browser Engine...), followed by the browser you need (those browser are valid options: chrome, chromium and firefox).
+You will need to download those browser before using Selenium (or at least, corresponding engine (gecko, webkit)).
+
+Last geckodriver can be found [here](https://github.com/mozilla/geckodriver/releases/).
+
+There are two way to use the Selenium package :
+
+- enter arguments for each action directly in CLI,
+- enter each action in a separate file, which is more readable, particularly if you have many actions.
+
+To read a file containing a sequence of action, use `-SAF` (Selenium Action File). Otherwise, you will need the `-SA` argument, followed by your list of actions.
+
+You can find an example of action file in `_selenium/examples` directory. It is a json file, written as a list of action.
+
+#### Without a specific action file
+
+```bash
+./AnonWebBot.py -u https://duckduckgo.com -SBE chromium -SA '[[{"type": "find_element_by_name", "value": "q"}, {"type": "send_keys", "value": "test"}]]'
+```
+
+#### With an action file
+
+```bash
+# we will start the tor service before
+sudo service tor start
+./AnonWebBot.py -u https://duckduckgo.com -td -tp mypassword -SBE firefox -SAF _selenium/examples/test_ddg.json
 ```

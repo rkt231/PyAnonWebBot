@@ -14,11 +14,9 @@ import re
 import logging
 import ast
 
-# Tor default local proxy
-PROXIES = {
-    'http': 'socks5://127.0.0.1:9050',
-    'https': 'socks5://127.0.0.1:9050'
-}
+from config import conf
+
+from _selenium import selenium_builder
 
 def parse_args(description):
     """
@@ -26,6 +24,10 @@ def parse_args(description):
     """
     parser = argparse.ArgumentParser(formatter_class=\
         help_format.BlankLinesHelpFormatter, description=description)
+
+    parser.add_argument('--version', action='version', \
+    version='%(prog)s 0.1.1')
+    
     parser.add_argument("-m", "--min", help="minimum time (seconds) to wait \
     between two queries. Default is 1 second.", type=int, default=1)
     parser.add_argument("-M", "--max", help="Maximum time (seconds) to wait \
@@ -36,17 +38,6 @@ def parse_args(description):
     session", action='store_true')
     parser.add_argument("-H", "--headers", help="Use a defined header. Default \
     is to use a random header.", type=str)
-    subparsers = parser.add_subparsers(help='using an ip changer', dest='m_ip')
-    tor = subparsers.add_parser('tor', help="use tor")
-    tor.add_argument("-td", "--t_dynamic", action='store_true', help = \
-        "Use a dynamic IP with a controller. \n\
-        Check /etc/tor/torrc for: \n\
-            - port 9051\n\
-            - HashedControlPassword \n\
-            - CookieAuthentication. \n\
-        Else, use socket with port 9050 locally.\n")
-    tor.add_argument("-tp", "--t_password", type=str, help = \
-        "Password for tor controller (dynamic)")
     parser.add_argument("-u", "--url", help="URL to use", type=str, \
         required=True)
     parser.add_argument("-se_t", "--search_element_tag", help= \
@@ -60,12 +51,13 @@ def parse_args(description):
     parser.add_argument("-sc", "--search_content", help= \
         "Text to search in HTML DOM.", type=str)
     parser.add_argument("-sff", "--stop_first_found", help= \
-        "Stop search at first item found.", action='store_true')
+        "Stop search at first item found and dump inner content.", \
+        action='store_true')
     parser.add_argument("-sl", "--search_limit", help= \
         "Maximum matches to display. Default is 100.", type=int, default=100)
     parser.add_argument("--norecursive", help= \
         "Display only immediate children.", action='store_true')
-    parser.add_argument("-dutf8", "--decode_utf8", help= \
+    parser.add_argument("-utf8d", "--utf8_decode", help= \
         "Try to decode utf8 content.", action='store_true')
     parser.add_argument("-v", "--value", help="value to send (dict format)", \
         type=str)
@@ -74,11 +66,84 @@ def parse_args(description):
     parser.add_argument("--auth_pwd", help="authenticate with password", \
         type=str)
     parser.add_argument("--authtype", help="Authentication type: \
-        [digest|basic]", type=str, choices=['basic','digest'])
+        [digest|basic] (needs --auth_user and --auth_pwd)", type=str, \
+        choices=['basic','digest'], default='basic')
     parser.add_argument("-mt", "--method", help="Method to use in form. \
         Should be GET or POST. Default is GET.", default="GET", type=str)
+    
+    parser.add_argument("-ts", "--tor_static", action='store_true', help = \
+        "Use a local tor proxy")
+    parser.add_argument("-td", "--tor_dynamic", action='store_true', help = \
+        "Use a dynamic IP with Tor and a controller. \n\
+        Check /etc/tor/torrc for: \n\
+            - port 9051\n\
+            - HashedControlPassword \n\
+            - CookieAuthentication. \n\
+        Else, use socket with port 9050 locally.\n")
+    parser.add_argument("-tp", "--tor_password", type=str, help = \
+        "Password for the Tor controller (dynamic; needs '-td')")
+    
+    parser.add_argument("-SBE", "--selenium_browser_engine", type=str, choices = \
+        ["chrome", "chromium", "firefox", "edge", "opera", "IE"], \
+        help="Use the corresponding browser engine (it needs to be installed)")
+    parser.add_argument("-SA", "--selenium_actions", type=str, help = "A valid list \
+        of selenium actions (eg: '[[{\"type\": \"find_element_by_name\", \
+        \"value\": \"q\"}, {\"type\": \"send_keys\", \"value\": \"test\"}]]' \
+        will result in .find_element_by_name('q').send_keys('test'))")
+    parser.add_argument("-SAF", "--selenium_actions_file", type = \
+        argparse.FileType('r'), help = "A valid list of selenium actions in a \
+        json file (you could take a look at _selenium/examples/*.json)")
+
     args = parser.parse_args()
     return args
+
+def requests_new(method, url, auth, payload, session, headers, proxies, timeout, \
+    authtype, with_session):
+    # setup the request
+    rq = builder.rq(method, url, auth, payload, session, headers, proxies, \
+        timeout)
+    if not headers:
+        # randomize user_agent
+        rq.rand_uagent()
+    
+    if auth and authtype:
+        rq.authenticate(authtype)
+
+    if with_session:
+        rq.get_session()
+        rq.prep_and_send()
+    else:
+        rq.req()
+    
+    # parsing options and parse the Web Page
+    content = rq.get_content()
+    return content
+
+def parse_and_display(tag=None, attrs={}, search_content=None, \
+    norecursive=False, limit=100, stop_first_found=False, utf8_decode=False, \
+    content=""):
+    
+    search_string=""
+    recursive=True
+    if search_content:
+        search_string = re.compile(".*%s.*"%search_content)
+    if norecursive:
+        recursive=False
+    
+    # soup.find() and soup.find_all() may be mixed.
+    # maybe that kind of mix will be possible in a future version
+    # to stop at first item, we could either use limit=1 or soup.find()
+    if stop_first_found:
+        results = bs4_parser.bs4_find(content, tag, attrs, recursive, search_string)
+    else:
+        results = bs4_parser.bs4_find_all(content, tag, attrs, recursive, search_string, limit)
+    
+    if results:
+        for s in results:
+            try_utf8(s, utf8_decode)
+    else:
+        logging.warning("No Content Found ! Dumping content.\n")
+        try_utf8(content, utf8_decode)
 
 def torify(pwd):
     """
@@ -116,16 +181,13 @@ def waiting(min, max):
     time.sleep(wait)
 
 def main():
+    content = ""
     proxies = {}
     payload = {}
     session = ""
     headers = {}
-    auth = ""
+    auth = None
     attrs = {}
-    tag = None
-    search_string = None
-    recursive = True
-    limit = 100
 
     description="This program allows you to send values using POST method \n\
         or retrieve and parse Web content from a webpage using GET method. \n\
@@ -156,11 +218,11 @@ def main():
     
     if args.value:
         payload=args.value
-    if args.m_ip:
-        if args.t_dynamic and args.t_password:
-            tor_pwd = args.t_password
+    if args.tor_dynamic or args.tor_static:
+        if args.tor_dynamic and args.tor_password:
+            tor_pwd = args.tor_password
             torify(tor_pwd)
-        proxies=PROXIES
+        proxies=conf.PROXIES
     
     if args.timeout:
         timeout = args.timeout
@@ -175,57 +237,31 @@ def main():
         except (SyntaxError, ValueError) as e:
             raise e
     
-    # setup the request
-    rq = builder.rq(method, url, auth, payload, session, headers, proxies, \
-        timeout)
-    if not headers:
-        # randomize user_agent
-        rq.rand_uagent()
-    
-    if auth:
-        if args.authtype:
-            authtype = args.authtype
+    if args.selenium_browser_engine:
+        rq = selenium_builder.Selenium_rq(args.selenium_browser_engine, \
+            url, proxies, headers)
+        rq.open_url()
+        if args.selenium_actions:
+            rq.selenium_actions(args.selenium_actions)
+        elif args.selenium_actions_file:
+            rq.selenium_actions(args.selenium_actions_file)
         else:
-            authtype = 'basic'
-        rq.authenticate(authtype)
-
-    if args.with_session:
-        rq.get_session()
-        rq.prep_and_send()
+            pprint("No action given for Selenium")
     else:
-        rq.req()
-    
-    # parsing options and parse the Web Page
-    content = rq.get_content()
-    if args.search_element_tag:
-        tag = args.search_element_tag
+        content = requests_new(method, url, auth, payload, session, headers, \
+            proxies, timeout, args.authtype, args.with_session)
+
     if args.search_element_id:
         attrs["id"] = args.search_element_id
     if args.search_element_name:
         attrs["name"] = args.search_element_name
     if args.search_element_class:
         attrs["class"] = args.search_element_class
-    if args.search_content:
-        search_string = re.compile(".*%s.*"%args.search_content)
-    if args.norecursive:
-        recursive=False
-    if args.search_limit:
-        limit = args.search_limit
     
-    # soup.find() and soup.find_all() may be mixed.
-    # maybe that kind of mix will be possible in a future version
-    # to stop at first item, we could either use limit=1 or soup.find()
-    if args.stop_first_found:
-        results = bs4_parser.bs4_find(content, tag, attrs, recursive, search_string)
-    else:
-        results = bs4_parser.bs4_find_all(content, tag, attrs, recursive, search_string, limit)
-    
-    if results:
-        for s in results:
-            try_utf8(s, args.decode_utf8)
-    else:
-        logging.warning("No Content Found ! Dumping content.\n")
-        try_utf8(content, args.decode_utf8)
+    if content:
+        parse_and_display(args.search_element_tag, attrs, \
+            args.search_content, args.norecursive, args.search_limit, \
+            args.stop_first_found, args.utf8_decode, content)
 
 
 if __name__ == '__main__':
