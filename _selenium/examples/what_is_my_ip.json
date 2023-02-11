@@ -13,8 +13,24 @@
             "value": "Keys.ENTER"
         },
         {
-                "type": "wait",
-                "value": "7"
+            "type": "wait",
+            "value": "7"
+        },
+        {
+            "type": "ExplicitWait",
+            "timeout": "15",
+            "element": 
+                {
+                    "type": "css selector",
+                    "value": "#r1-0"
+                }
+        },
+        {
+            "type": "click"
+        },
+        {
+            "type": "wait",
+            "value": "15"
         }
     ]
 ]

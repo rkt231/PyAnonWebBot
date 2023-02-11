@@ -150,6 +150,12 @@ You can find an example of action file in `_selenium/examples` directory. It is 
 ./AnonWebBot.py -u https://duckduckgo.com -SBE chromium -SA '[[{"type": "find_element_by_name", "value": "q"}, {"type": "send_keys", "value": "test"}]]'
 ```
 
+If you just want to visit a website and you do not know what is the DOM structure of the site, you can just wait:
+
+```bash
+./AnonWebBot.py -u https://ident.me -SBE chrome -SA '[[{"type": "wait", "value": "2"}]]' -td -tp mypassword
+```
+
 #### With an action file
 
 ```bash
@@ -157,3 +163,4 @@ You can find an example of action file in `_selenium/examples` directory. It is 
 sudo service tor start
 ./AnonWebBot.py -u https://duckduckgo.com -td -tp mypassword -SBE firefox -SAF _selenium/examples/test_ddg.json
 ```
+
