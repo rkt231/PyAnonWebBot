@@ -30,7 +30,7 @@ With `requirements.txt`:
 python3 -m pip install -r requirements.txt
 ```
 
-With `poetry`:
+With [`poetry`](https://python-poetry.org/):
 
 ```bash
 poetry install
@@ -128,11 +128,11 @@ You will need to download those browser before using Selenium (or at least, corr
 
 Last geckodriver can be found [here](https://github.com/mozilla/geckodriver/releases/). Then, add the `geckodriver` to your `$PATH`:
 
-Chrome expects a symbolic link to be found at `/usr/bin/google-chrome`. You can find `chromedriver` [here](https://chromedriver.chromium.org/downloads).
-
 ```bash
 sudo cp geckodriver /usr/local/bin/
 ```
+
+Chrome expects a symbolic link to be found at `/usr/bin/google-chrome`. You can find `chromedriver` [here](https://chromedriver.chromium.org/downloads). Normaly, it is easier to install `chrome` and `chromium` from standard repositories and avoid `snap` or `flatpak`. Please refer to the [official selenium page for this](https://www.selenium.dev/documentation/webdriver/getting_started/install_drivers/).
 
 
 There are two way to use the Selenium package :
