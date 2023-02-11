@@ -21,7 +21,8 @@ def init_chrome(proxy=False, headers=False):
     _wire_opts = False
     _serv = ChromeService(executable_path=ChromeDriverManager().install())
     _opts = WD.ChromeOptions()
-    #_opts.add_argument('headless')
+    if conf.HEADLESS:
+        _opts.add_argument('headless')
     #_opts.add_argument('--disable-infobars')
     #_opts.add_argument('--disable-dev-shm-usage')
     #_opts.add_argument('--no-sandbox')

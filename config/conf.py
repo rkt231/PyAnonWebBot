@@ -19,7 +19,8 @@ PROXIES = {
 Misc
 """
 
-# chrome additionnal user agent
+HEADLESS=False
 
+# chrome additionnal user agent
 #sec_ch_ua = '"Google Chrome";v="93", " Not;A Brand";v="99", "Chromium";v="93"' 
 sec_ch_ua = ''
