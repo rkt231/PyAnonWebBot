@@ -18,4 +18,3 @@ def init_chromium(proxy=False, headers=False):
         _opts.add_argument('--proxy-server=%s' % PROXY)
     driver = webdriver.Chrome(service=_serv, options=_opts)
     return driver
-    

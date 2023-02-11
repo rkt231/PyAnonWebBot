@@ -17,23 +17,46 @@ _Moreover, it is a side project. My time is limited and valuable. Do not hesitat
 ```bash
 git clone https://github.com/rkt231/PyAnonWebBot.git
 cd PyAnonWebBot
+```
+
+### Requirements
+
+You can either use `requirements.txt` with `pip` or `poetry`:
+
+
+With `requirements.txt`:
+
+```bash
 python3 -m pip install -r requirements.txt
 ```
 
-Then to use tor:
+With `poetry`:
+
+```bash
+poetry install
+
+# then will have to run each next command with 
+# poetry run ./AnonWebBot.py [options]
+```
+
+### Tor
+
+To use tor, obviously, you need to install and configure it:
 
 ```bash
 # ubuntu / debian
-apt install tor
+sudo apt install -y tor
+# fedora / centos
+sudo dnf install -y tor
 
 # uncommenting some lines
-sed -i "s/#CookieAuthentication/CookieAuthentication/" /etc/tor/torrc
-sed -i "s/#ControlPort/ControlPort/" /etc/tor/torrc
+sudo sed -i "s/#CookieAuthentication/CookieAuthentication/" /etc/tor/torrc
+sudo sed -i "s/#ControlPort/ControlPort/" /etc/tor/torrc
 # then setup a tor password
 tor --hash-password mypassword > /tmp/hash
-sed -ri "s/#HashedControlPassword .+$/HashedControlPassword `cat /tmp/hash`/g" /etc/tor/torrc
+sudo sed -ri "s/#HashedControlPassword .+$/HashedControlPassword `cat /tmp/hash`/g" /etc/tor/torrc
 
-service tor restart
+sudo service tor restart
 ```
 
 ## Basic usage with the requests python package
@@ -103,7 +126,14 @@ Otherwise you can set your custom headers with `-H` option.
 First of all, you have to use the `-SBE` option (meaning switch to a Selenium Browser Engine...), followed by the browser you need (those browser are valid options: chrome, chromium and firefox).
 You will need to download those browser before using Selenium (or at least, corresponding engine (gecko, webkit)).
 
-Last geckodriver can be found [here](https://github.com/mozilla/geckodriver/releases/).
+Last geckodriver can be found [here](https://github.com/mozilla/geckodriver/releases/). Then, add the `geckodriver` to your `$PATH`:
+
+Chrome expects a symbolic link to be found at `/usr/bin/google-chrome`. You can find `chromedriver` [here](https://chromedriver.chromium.org/downloads).
+
+```bash
+sudo cp geckodriver /usr/local/bin/
+```
+
 
 There are two way to use the Selenium package :
 
