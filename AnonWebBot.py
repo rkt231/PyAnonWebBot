@@ -27,7 +27,6 @@ def parse_args(description):
 
     parser.add_argument('--version', action='version', \
     version='%(prog)s 0.1.1')
-    
     parser.add_argument("-m", "--min", help="minimum time (seconds) to wait \
     between two queries. Default is 1 second.", type=int, default=1)
     parser.add_argument("-M", "--max", help="Maximum time (seconds) to wait \
@@ -70,7 +69,6 @@ def parse_args(description):
         choices=['basic','digest'], default='basic')
     parser.add_argument("-mt", "--method", help="Method to use in form. \
         Should be GET or POST. Default is GET.", default="GET", type=str)
-    
     parser.add_argument("-ts", "--tor_static", action='store_true', help = \
         "Use a local tor proxy")
     parser.add_argument("-td", "--tor_dynamic", action='store_true', help = \
@@ -82,7 +80,6 @@ def parse_args(description):
         Else, use socket with port 9050 locally.\n")
     parser.add_argument("-tp", "--tor_password", type=str, help = \
         "Password for the Tor controller (dynamic; needs '-td')")
-    
     parser.add_argument("-SBE", "--selenium_browser_engine", type=str, choices = \
         ["chrome", "chromium", "firefox", "edge", "opera", "IE"], \
         help="Use the corresponding browser engine (it needs to be installed)")
@@ -105,7 +102,6 @@ def requests_new(method, url, auth, payload, session, headers, proxies, timeout,
     if not headers:
         # randomize user_agent
         rq.rand_uagent()
-    
     if auth and authtype:
         rq.authenticate(authtype)
 
@@ -114,7 +110,6 @@ def requests_new(method, url, auth, payload, session, headers, proxies, timeout,
         rq.prep_and_send()
     else:
         rq.req()
-    
     # parsing options and parse the Web Page
     content = rq.get_content()
     return content
@@ -122,14 +117,12 @@ def requests_new(method, url, auth, payload, session, headers, proxies, timeout,
 def parse_and_display(tag=None, attrs={}, search_content=None, \
     norecursive=False, limit=100, stop_first_found=False, utf8_decode=False, \
     content=""):
-    
     search_string=""
     recursive=True
     if search_content:
         search_string = re.compile(".*%s.*"%search_content)
     if norecursive:
         recursive=False
-    
     # soup.find() and soup.find_all() may be mixed.
     # maybe that kind of mix will be possible in a future version
     # to stop at first item, we could either use limit=1 or soup.find()
@@ -137,7 +130,6 @@ def parse_and_display(tag=None, attrs={}, search_content=None, \
         results = bs4_parser.bs4_find(content, tag, attrs, recursive, search_string)
     else:
         results = bs4_parser.bs4_find_all(content, tag, attrs, recursive, search_string, limit)
-    
     if results:
         for s in results:
             try_utf8(s, utf8_decode)
@@ -201,7 +193,6 @@ def main():
         program.\n"
 
     args = parse_args(description)
-    
     if args.url:
         if not re.search("^http(s)?://.*", args.url):
             raise Exception("Sorry, your URL is not valid")
@@ -213,9 +204,7 @@ def main():
         method="POST"
     else:
         method="GET"
-    
     waiting(args.min, args.max)
-    
     if args.value:
         payload=args.value
     if args.tor_dynamic or args.tor_static:
@@ -223,7 +212,6 @@ def main():
             tor_pwd = args.tor_password
             torify(tor_pwd)
         proxies=conf.PROXIES
-    
     if args.timeout:
         timeout = args.timeout
     else:
@@ -236,7 +224,6 @@ def main():
             headers = ast.literal_eval(headers)
         except (SyntaxError, ValueError) as e:
             raise e
-    
     if args.selenium_browser_engine:
         rq = selenium_builder.Selenium_rq(args.selenium_browser_engine, \
             url, proxies, headers)
@@ -257,7 +244,6 @@ def main():
         attrs["name"] = args.search_element_name
     if args.search_element_class:
         attrs["class"] = args.search_element_class
-    
     if content:
         parse_and_display(args.search_element_tag, attrs, \
             args.search_content, args.norecursive, args.search_limit, \

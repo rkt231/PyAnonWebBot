@@ -91,7 +91,7 @@ class Selenium_rq:
                     #                element["value"]))
                     #        )
                     WebDriverWait(self.driver, timeout).until(
-                        EC.presence_of_element_located((element["type"], 
+                        EC.presence_of_element_located((element["type"],
                             element["value"]))
                         )
                 else:

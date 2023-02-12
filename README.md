@@ -17,23 +17,46 @@ _Moreover, it is a side project. My time is limited and valuable. Do not hesitat
 ```bash
 git clone https://github.com/rkt231/PyAnonWebBot.git
 cd PyAnonWebBot
+```
+
+### Requirements
+
+You can either use `requirements.txt` with `pip` or `poetry`:
+
+
+With `requirements.txt`:
+
+```bash
 python3 -m pip install -r requirements.txt
 ```
 
-Then to use tor:
+With [`poetry`](https://python-poetry.org/):
+
+```bash
+poetry install
+
+# then will have to run each next command with 
+# poetry run ./AnonWebBot.py [options]
+```
+
+### Tor
+
+To use tor, obviously, you need to install and configure it:
 
 ```bash
 # ubuntu / debian
-apt install tor
+sudo apt install -y tor
+# fedora / centos
+sudo dnf install -y tor
 
 # uncommenting some lines
-sed -i "s/#CookieAuthentication/CookieAuthentication/" /etc/tor/torrc
-sed -i "s/#ControlPort/ControlPort/" /etc/tor/torrc
+sudo sed -i "s/#CookieAuthentication/CookieAuthentication/" /etc/tor/torrc
+sudo sed -i "s/#ControlPort/ControlPort/" /etc/tor/torrc
 # then setup a tor password
 tor --hash-password mypassword > /tmp/hash
-sed -ri "s/#HashedControlPassword .+$/HashedControlPassword `cat /tmp/hash`/g" /etc/tor/torrc
+sudo sed -ri "s/#HashedControlPassword .+$/HashedControlPassword `cat /tmp/hash`/g" /etc/tor/torrc
 
-service tor restart
+sudo service tor restart
 ```
 
 ## Basic usage with the requests python package
@@ -69,6 +92,7 @@ sudo service tor start
 ./AnonWebBot.py --url https://ident.me -ws -ts
 
 # adding a dynamic IP from tor and random sleep before request (between 3 and 5 seconds)
+# replace "mypassword" with your tor password
 ./AnonWebBot.py --url https://ident.me -ws -sc "." -m 3 -M 5 -td -tp mypassword
 ```
 
@@ -76,7 +100,7 @@ sudo service tor start
 
 ```bash
 # using `-sc "."` to match any content
-for i in {0..3}; do ./AnonWebBot.py -u https://httpbin.org/headers -m 1 -M 3 -sc "."; done
+for i in {0..3}; do ./AnonWebBot.py -u https://httpbin.org/headers -m 1 -M 3 -sc "."|grep User-Agent; done
 ```
 
 Otherwise you can set your custom headers with `-H` option.
@@ -90,7 +114,7 @@ Otherwise you can set your custom headers with `-H` option.
 # to check where the action send data, the input values to send, etc. 
 ./AnonWebBot.py -u https://httpbin.org/forms/post -mt get -se_t form
 # send data using this form
-./AnonWebBot.py -u https://httpbin.org/post -mt post -v '{"custname": "JohnDoe", "custel": "00-00-000", "custemail": "john.doe@domain.tld", "size": "large", "topping": "cheese", "delivery":"19:45"}' -sc "." tor -td -tp mypassword
+./AnonWebBot.py -u https://httpbin.org/post -mt post -v '{"custname": "JohnDoe", "custel": "00-00-000", "custemail": "john.doe@domain.tld", "size": "large", "topping": "cheese", "delivery":"19:45"}' -sc "." -td -tp mypassword
 ```
 
 ## A more advanced usage with selenium in python
@@ -102,7 +126,14 @@ Otherwise you can set your custom headers with `-H` option.
 First of all, you have to use the `-SBE` option (meaning switch to a Selenium Browser Engine...), followed by the browser you need (those browser are valid options: chrome, chromium and firefox).
 You will need to download those browser before using Selenium (or at least, corresponding engine (gecko, webkit)).
 
-Last geckodriver can be found [here](https://github.com/mozilla/geckodriver/releases/).
+Last geckodriver can be found [here](https://github.com/mozilla/geckodriver/releases/). Then, add the `geckodriver` to your `$PATH`:
+
+```bash
+sudo cp geckodriver /usr/local/bin/
+```
+
+Chrome expects a symbolic link to be found at `/usr/bin/google-chrome`. You can find `chromedriver` [here](https://chromedriver.chromium.org/downloads). Normaly, it is easier to install `chrome` and `chromium` from standard repositories and avoid `snap` or `flatpak`. Please refer to the [official selenium page for this](https://www.selenium.dev/documentation/webdriver/getting_started/install_drivers/).
+
 
 There are two way to use the Selenium package :
 
@@ -119,6 +150,12 @@ You can find an example of action file in `_selenium/examples` directory. It is 
 ./AnonWebBot.py -u https://duckduckgo.com -SBE chromium -SA '[[{"type": "find_element_by_name", "value": "q"}, {"type": "send_keys", "value": "test"}]]'
 ```
 
+If you just want to visit a website and you do not know what is the DOM structure of the site, you can just wait:
+
+```bash
+./AnonWebBot.py -u https://ident.me -SBE chrome -SA '[[{"type": "wait", "value": "2"}]]' -td -tp mypassword
+```
+
 #### With an action file
 
 ```bash
@@ -126,3 +163,4 @@ You can find an example of action file in `_selenium/examples` directory. It is 
 sudo service tor start
 ./AnonWebBot.py -u https://duckduckgo.com -td -tp mypassword -SBE firefox -SAF _selenium/examples/test_ddg.json
 ```
+
