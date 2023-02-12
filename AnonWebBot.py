@@ -156,9 +156,9 @@ def try_utf8(content, utf8):
     if utf8:
         try:
             pprint(content.decode("utf-8"))
-        except Exception as e:
+        except Exception as err:
             logging.warning("Following exception happens while trying to \
-decode content (utf-8): %s. \nDumping results:\n"%e)
+decode content (utf-8): %s. \nDumping results:\n" % err)
             pprint(content)
     else:
         pprint(content)
@@ -173,6 +173,9 @@ def waiting(min, max):
     time.sleep(wait)
 
 def main():
+    """
+    Parse arguments and call the right methods
+    """
     content = ""
     proxies = {}
     payload = {}
@@ -222,8 +225,8 @@ def main():
         headers = args.headers
         try:
             headers = ast.literal_eval(headers)
-        except (SyntaxError, ValueError) as e:
-            raise e
+        except (SyntaxError, ValueError) as err:
+            raise err
     if args.selenium_browser_engine:
         rq = selenium_builder.Selenium_rq(args.selenium_browser_engine, \
             url, proxies, headers)

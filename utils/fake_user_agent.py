@@ -1,6 +1,6 @@
 from fake_useragent import UserAgent
 
-def fake_agent():
+def fake_uagent():
     """
     Basic function to generate a fake User Agent
     """
