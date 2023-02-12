@@ -16,7 +16,6 @@ selenium = ">=1.4.0"
 stem = ">=1.8.0"
 idna = ">=3.3"
 urllib3 = ">=1.26.6"
-webdriver_manager = ">=3.5.2"
 selenium-wire = ">=4.6.3"
 
 [tool.poetry.dev-dependencies]

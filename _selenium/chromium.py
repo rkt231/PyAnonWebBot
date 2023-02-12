@@ -3,17 +3,23 @@ from seleniumwire import webdriver as WD
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.utils import ChromeType
+try:
+    from webdriver_manager.core.utils import ChromeType
+except ImportError:
+    from webdriver_manager.utils import ChromeType
 
 from config import conf
 from utils import rand_user_agent
 
 
 def interceptor(request):
+    """
+    interceptor is a selenium-wire method to change
+    headers dynamically
+    """
     del request.headers["user-agent"] # Delete the header first
     request.headers["user-agent"] = rand_user_agent.rand_uagent()
     request.headers["sec-ch-ua"] = conf.sec_ch_ua
-    return request
 
 def init_chromium(proxy=False, headers=False):
     """
