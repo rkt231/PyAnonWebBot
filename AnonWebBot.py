@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-from stem import Signal
-from stem.control import Controller
-from _requests import builder
-
-from pprint import pprint
-import argparse
-from utils import bs4_parser, help_format
 import random
 import time
 import re
 import logging
 import ast
+from pprint import pprint
+import argparse
 
+from stem import Signal
+from stem.control import Controller
+from _requests import builder
+
+from utils import bs4_parser, help_format
+from utils import proxy_generator
 from config import conf
 
 from _selenium import selenium_builder
@@ -26,7 +26,7 @@ def parse_args(description):
         help_format.BlankLinesHelpFormatter, description=description)
 
     parser.add_argument('--version', action='version', \
-    version='%(prog)s 0.1.1')
+    version='%(prog)s 0.2.1')
     parser.add_argument("-m", "--min", help="minimum time (seconds) to wait \
     between two queries. Default is 1 second.", type=int, default=1)
     parser.add_argument("-M", "--max", help="Maximum time (seconds) to wait \
@@ -69,17 +69,21 @@ def parse_args(description):
         choices=['basic','digest'], default='basic')
     parser.add_argument("-mt", "--method", help="Method to use in form. \
         Should be GET or POST. Default is GET.", default="GET", type=str)
-    parser.add_argument("-ts", "--tor_static", action='store_true', help = \
+    # proxy options
+    prox = parser.add_mutually_exclusive_group()
+    prox.add_argument("-rp", "--random_proxy", action='store_true', help = \
+        "Use a random proxy")
+    prox.add_argument("-ts", "--tor_static", action='store_true', help = \
         "Use a local tor proxy")
-    parser.add_argument("-td", "--tor_dynamic", action='store_true', help = \
-        "Use a dynamic IP with Tor and a controller. \n\
-        Check /etc/tor/torrc for: \n\
+    prox.add_argument("-tdp", "--tor_dynamic_with_password", type=str, help = \
+        "Password for the Tor controller (dynamic) \n\
+        This option uses a dynamic IP provided by Tor and a controller. \n\
+        Check your /etc/tor/torrc for: \n\
             - port 9051\n\
             - HashedControlPassword \n\
             - CookieAuthentication. \n\
         Else, use socket with port 9050 locally.\n")
-    parser.add_argument("-tp", "--tor_password", type=str, help = \
-        "Password for the Tor controller (dynamic; needs '-td')")
+    # selenium options
     parser.add_argument("-SBE", "--selenium_browser_engine", type=str, choices = \
         ["chrome", "chromium", "firefox", "edge", "opera", "IE"], \
         help="Use the corresponding browser engine (it needs to be installed)")
@@ -96,31 +100,36 @@ def parse_args(description):
 
 def requests_new(method, url, auth, payload, session, headers, proxies, timeout, \
     authtype, with_session):
-    # setup the request
-    rq = builder.rq(method, url, auth, payload, session, headers, proxies, \
+    """
+    setup the request
+    """
+    req = builder.rq(method, url, auth, payload, session, headers, proxies, \
         timeout)
     if not headers:
         # randomize user_agent
-        rq.rand_uagent()
+        req.rand_uagent()
     if auth and authtype:
-        rq.authenticate(authtype)
+        req.authenticate(authtype)
 
     if with_session:
-        rq.get_session()
-        rq.prep_and_send()
+        req.get_session()
+        req.prep_and_send()
     else:
-        rq.req()
+        req.req()
     # parsing options and parse the Web Page
-    content = rq.get_content()
+    content = req.get_content()
     return content
 
 def parse_and_display(tag=None, attrs={}, search_content=None, \
     norecursive=False, limit=100, stop_first_found=False, utf8_decode=False, \
     content=""):
+    """
+    Using beautifulsoup to search content and display the result to stdout
+    """
     search_string=""
     recursive=True
     if search_content:
-        search_string = re.compile(".*%s.*"%search_content)
+        search_string = re.compile(".*%s.*" % search_content)
     if norecursive:
         recursive=False
     # soup.find() and soup.find_all() may be mixed.
@@ -131,8 +140,8 @@ def parse_and_display(tag=None, attrs={}, search_content=None, \
     else:
         results = bs4_parser.bs4_find_all(content, tag, attrs, recursive, search_string, limit)
     if results:
-        for s in results:
-            try_utf8(s, utf8_decode)
+        for strng in results:
+            try_utf8(strng, utf8_decode)
     else:
         logging.warning("No Content Found ! Dumping content.\n")
         try_utf8(content, utf8_decode)
@@ -148,11 +157,14 @@ def torify(pwd):
     ... And do not forget to set a hashed pwd:
     - https://stackoverflow.com/questions/66128553/tor-stem-not-finding-the-cookie-control-authentication-file
     """
-    with Controller.from_port(port = 9051) as c:
-        c.authenticate(pwd)
-        c.signal(Signal.NEWNYM)
+    with Controller.from_port(port = 9051) as ctl:
+        ctl.authenticate(pwd)
+        ctl.signal(Signal.NEWNYM)
 
 def try_utf8(content, utf8):
+    """
+    Utf8 decode
+    """
     if utf8:
         try:
             pprint(content.decode("utf-8"))
@@ -210,11 +222,14 @@ def main():
     waiting(args.min, args.max)
     if args.value:
         payload=args.value
-    if args.tor_dynamic or args.tor_static:
-        if args.tor_dynamic and args.tor_password:
-            tor_pwd = args.tor_password
+    if args.random_proxy:
+        proxies=proxy_generator.rand_proxy()
+    elif args.tor_dynamic_with_password or args.tor_static:
+        if args.tor_dynamic_with_password:
+            tor_pwd = args.tor_dynamic_with_password
             torify(tor_pwd)
         proxies=conf.PROXIES
+    pprint(repr(proxies))
     if args.timeout:
         timeout = args.timeout
     else:
@@ -228,13 +243,13 @@ def main():
         except (SyntaxError, ValueError) as err:
             raise err
     if args.selenium_browser_engine:
-        rq = selenium_builder.Selenium_rq(args.selenium_browser_engine, \
+        req = selenium_builder.Selenium_rq(args.selenium_browser_engine, \
             url, proxies, headers)
-        rq.open_url()
+        req.open_url()
         if args.selenium_actions:
-            rq.selenium_actions(args.selenium_actions)
+            req.selenium_actions(args.selenium_actions)
         elif args.selenium_actions_file:
-            rq.selenium_actions(args.selenium_actions_file)
+            req.selenium_actions(args.selenium_actions_file)
         else:
             pprint("No action given for Selenium")
     else:

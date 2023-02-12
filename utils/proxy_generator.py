@@ -10,7 +10,10 @@ def proxy_generator():
     response1 = requests.get("https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW.txt",
                              timeout=3
                              )
-    response2 = requests.get("https://raw.githubusercontent.com/saschazesiger/Free-Proxies/master/proxies/ultrafast.txt",
+    #response2 = requests.get("https://raw.githubusercontent.com/saschazesiger/Free-Proxies/master/proxies/ultrafast.txt",
+    #                         timeout=3
+    #                         )
+    response2 = requests.get("https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/proxy.txt",
                              timeout=3
                              )
     response3 = requests.get("https://raw.githubusercontent.com/mertguvencli/http-proxy-list/main/proxy-list/data.txt",

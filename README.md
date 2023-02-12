@@ -41,7 +41,7 @@ poetry install
 
 ### Tor
 
-To use tor, obviously, you need to install and configure it:
+To use tor, obviously, you need to install and configure it (replace _mypassword_ with your actual password):
 
 ```bash
 # ubuntu / debian
@@ -93,7 +93,7 @@ sudo service tor start
 
 # adding a dynamic IP from tor and random sleep before request (between 3 and 5 seconds)
 # replace "mypassword" with your tor password
-./AnonWebBot.py --url https://ident.me -ws -sc "." -m 3 -M 5 -td -tp mypassword
+./AnonWebBot.py --url https://ident.me -ws -sc "." -m 3 -M 5 -tdp mypassword
 ```
 
 ### checking headers
@@ -114,7 +114,7 @@ Otherwise you can set your custom headers with `-H` option.
 # to check where the action send data, the input values to send, etc. 
 ./AnonWebBot.py -u https://httpbin.org/forms/post -mt get -se_t form
 # send data using this form
-./AnonWebBot.py -u https://httpbin.org/post -mt post -v '{"custname": "JohnDoe", "custel": "00-00-000", "custemail": "john.doe@domain.tld", "size": "large", "topping": "cheese", "delivery":"19:45"}' -sc "." -td -tp mypassword
+./AnonWebBot.py -u https://httpbin.org/post -mt post -v '{"custname": "JohnDoe", "custel": "00-00-000", "custemail": "john.doe@domain.tld", "size": "large", "topping": "cheese", "delivery":"19:45"}' -sc "." -tdp mypassword
 ```
 
 ## A more advanced usage with selenium in python
@@ -153,7 +153,7 @@ You can find an example of action file in `_selenium/examples` directory. It is 
 If you just want to visit a website and you do not know what is the DOM structure of the site, you can just wait:
 
 ```bash
-./AnonWebBot.py -u https://ident.me -SBE chrome -SA '[[{"type": "wait", "value": "2"}]]' -td -tp mypassword
+./AnonWebBot.py -u https://ident.me -SBE chrome -SA '[[{"type": "wait", "value": "2"}]]' -tdp mypassword
 ```
 
 #### With an action file
@@ -161,6 +161,6 @@ If you just want to visit a website and you do not know what is the DOM structur
 ```bash
 # we will start the tor service before
 sudo service tor start
-./AnonWebBot.py -u https://duckduckgo.com -td -tp mypassword -SBE firefox -SAF _selenium/examples/test_ddg.json
+./AnonWebBot.py -u https://duckduckgo.com -tdp mypassword -SBE firefox -SAF _selenium/examples/test_ddg.json
 ```
 
