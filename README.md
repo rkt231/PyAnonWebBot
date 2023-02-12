@@ -123,10 +123,10 @@ Otherwise you can set your custom headers with `-H` option.
 
 ### Basic selenium usage
 
-First of all, you have to use the `-SBE` option (meaning switch to a Selenium Browser Engine...), followed by the browser you need (those browser are valid options: chrome, chromium and firefox).
-You will need to download those browser before using Selenium (or at least, corresponding engine (gecko, webkit)).
+First of all, you have to use the `-SBE` option (meaning _Selenium Browser Engine_...), followed by the browser you need (these browsers are valid options: chrome, chromium and firefox).
+You will need to download these browsers before using it with Selenium (or at least, the corresponding engine (gecko, chromedriver (webkit))).
 
-Last geckodriver can be found [here](https://github.com/mozilla/geckodriver/releases/). Then, add the `geckodriver` to your `$PATH`:
+Last geckodriver can be found [here](https://github.com/mozilla/geckodriver/releases/). Then, add the `geckodriver` to your `$PATH`, eg:
 
 ```bash
 sudo cp geckodriver /usr/local/bin/
@@ -140,9 +140,9 @@ There are two way to use the Selenium package :
 - enter arguments for each action directly in CLI,
 - enter each action in a separate file, which is more readable, particularly if you have many actions.
 
-To read a file containing a sequence of action, use `-SAF` (Selenium Action File). Otherwise, you will need the `-SA` argument, followed by your list of actions.
+To read a file containing a sequence of action, use `-SAF` (Selenium Actions File). Otherwise, you will need the `-SA` argument, followed by your list of actions.
 
-You can find an example of action file in `_selenium/examples` directory. It is a json file, written as a list of action.
+You can find an example of action file in `_selenium/examples` directory. It is a json file, written as a list of actions.
 
 #### Without a specific action file
 
