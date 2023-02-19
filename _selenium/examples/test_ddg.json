@@ -19,7 +19,7 @@
                 {
                     "type": "css selector",
                     "value": "#message",
-                    "~~ comments ~~": "expect one of `css selector`, `link text`, `partial link text`, `tag name`, `xpath`"
+                    "~~ comments ~~": "expect one of `css selector`, `link text`, `partial link text`, `tag name`, `xpath`, `id`, `name`, `class name`"
                 }
         },
         {

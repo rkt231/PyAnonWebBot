@@ -14,15 +14,15 @@
         },
         {
             "type": "wait",
-            "value": "7"
+            "value": "2"
         },
         {
             "type": "ExplicitWait",
-            "timeout": "15",
+            "timeout": "25",
             "element": 
                 {
-                    "type": "css selector",
-                    "value": "#r1-0"
+                    "type": "id",
+                    "value": "r1-2"
                 }
         },
         {
@@ -30,7 +30,10 @@
         },
         {
             "type": "wait",
-            "value": "15"
+            "value": "5"
+        },
+        {
+            "type": "close"
         }
     ]
 ]

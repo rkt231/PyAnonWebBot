@@ -162,5 +162,7 @@ If you just want to visit a website and you do not know what is the DOM structur
 # we will start the tor service before
 sudo service tor start
 ./AnonWebBot.py -u https://duckduckgo.com -tdp mypassword -SBE firefox -SAF _selenium/examples/test_ddg.json
+# with chrome
+./AnonWebBot.py -u https://duckduckgo.com -SBE chrome -SAF _selenium/examples/what_is_my_ip.json
 ```
 
